@@ -9,6 +9,13 @@
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet" />
     <link href="css/styles.css" rel="stylesheet" />
+    <style>
+        @media (max-width: 800px) {
+            .btn span {
+                display: none;
+            }
+        }
+    </style>
 </head>
 <body>
     <div id="app" class="container mt-5">
@@ -33,37 +40,35 @@
                     </h4>
                 </div>
             </div>
-            <div>
-                <button class="btn btn-secondary" @click="toggleButtonGroup">
-                    <i class="fas fa-cog"></i>
-                </button>
-                <button class="btn btn-info ml-2" @click="toggleExpandAll">
-                    <i class="fas fa-expand"></i>
-                    <span class="d-none d-sm-inline"> {{ allExpanded ? 'Collapse All' : 'Expand All' }}</span>
-                </button>
-            </div>
+            <button class="btn btn-secondary" @click="toggleButtonGroup">
+                <i class="fas fa-cog"></i>
+            </button>
         </div>
         <div v-show="buttonGroupVisible" class="mb-4">
             <button class="btn btn-success mr-2" @click="savePreset">
                 <i class="fas fa-save"></i>
-                <span class="d-none d-sm-inline"> Save Preset</span>
+                <span class="d-none d-sm-inline"> Save</span>
             </button>
             <button class="btn btn-primary mr-2" @click="loadPreset">
                 <i class="fas fa-folder-open"></i>
-                <span class="d-none d-sm-inline"> Load Preset</span>
+                <span class="d-none d-sm-inline"> Load</span>
             </button>
             <button class="btn btn-danger mr-2" @click="deletePreset">
                 <i class="fas fa-trash"></i>
-                <span class="d-none d-sm-inline"> Delete Preset</span>
+                <span class="d-none d-sm-inline"> Delete</span>
             </button>
             <button class="btn btn-secondary mr-2" @click="exportPreset">
                 <i class="fas fa-file-export"></i>
-                <span class="d-none d-sm-inline"> Export Preset</span>
+                <span class="d-none d-sm-inline"> Export</span>
             </button>
             <input type="file" id="fileInput" class="d-none" @change="importPreset" />
-            <button class="btn btn-info" @click="triggerFileInput">
+            <button class="btn btn-info mr-2" @click="triggerFileInput">
                 <i class="fas fa-file-import"></i>
-                <span class="d-none d-sm-inline"> Import Preset</span>
+                <span class="d-none d-sm-inline"> Import</span>
+            </button>
+            <button class="btn btn-warning" @click="toggleExpandAll">
+                <i class="fas fa-expand"></i>
+                <span class="d-none d-sm-inline"> {{ allExpanded ? 'Collapse' : 'Expand' }}</span>
             </button>
         </div>
         <div id="accordion">
