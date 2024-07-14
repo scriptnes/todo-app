@@ -336,7 +336,7 @@
                     const dataStr = JSON.stringify(data);
                     const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
 
-                    const exportFileDefaultName = 'preset.json';
+                    const exportFileDefaultName = `${this.tourName}_${this.tourNumber}_${this.tourModel}.json`;
 
                     const linkElement = document.createElement('a');
                     linkElement.setAttribute('href', dataUri);
