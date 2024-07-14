@@ -13,7 +13,7 @@ body {
 
 h1 {
     color: #343a40;
-    text-align: center;
+    text-align: left; /* Change to left align */
     margin-bottom: 20px;
 }
 
