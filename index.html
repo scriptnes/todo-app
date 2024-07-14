@@ -80,10 +80,10 @@
                     <div v-else class="d-flex justify-content-between align-items-center w-100">
                         <h5 class="mb-0 flex-grow-1">
                             <button class="btn btn-link" @click="toggleCollapse(index)">
-                                {{ todo.address || 'Enter your address here..' }}
+                                {{ todo.name || 'Enter your name here..' }}
                             </button>
                         </h5>
-                        <button class="btn btn-sm btn-warning" @click.stop="editHeader(index, todo.address)">
+                        <button class="btn btn-sm btn-warning" @click.stop="editHeader(index, todo.name)">
                             <i class="fas fa-edit"></i>
                         </button>
                     </div>
@@ -150,6 +150,7 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script src="https://unpkg.com/vue@2/dist/vue.js"></script>
     <script src="https://unpkg.com/vuejs-datepicker"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/uuid/8.3.2/uuid.min.js"></script>
     <script>
         Vue.component('vuejs-datepicker', window.vuejsDatepicker);
 
@@ -172,7 +173,10 @@
                 headerEdits: '',
                 buttonGroupVisible: false,
                 allExpanded: false,
-                windowWidth: window.innerWidth // Add windowWidth to data
+                windowWidth: window.innerWidth, // Add windowWidth to data
+                id: uuid.v4(), // Add id to data and generate UUID
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
             },
             computed: {
                 isSmallScreen() {
@@ -201,6 +205,7 @@
                     this.tourNumber = this.tourNumberEdit;
                     this.tourModel = this.tourModelEdit;
                     this.editableTourDetails = false;
+                    this.updatedAt = new Date().toISOString();
                 },
                 cancelTourEdit() {
                     this.editableTourDetails = false;
@@ -212,6 +217,7 @@
                     } else {
                         todo.completedTasks.splice(index, 1);
                     }
+                    this.updatedAt = new Date().toISOString();
                 },
                 isTaskCompleted(todo, task) {
                     return todo.completedTasks.includes(task);
@@ -246,11 +252,14 @@
                         this.tourName = data.tourName || 'Tour Name';
                         this.tourNumber = data.tourNumber || 'Tour Number';
                         this.tourModel = data.tourModel || 'Day-Model';
+                        this.id = data.id || uuid.v4();
+                        this.createdAt = data.createdAt || new Date().toISOString();
+                        this.updatedAt = data.updatedAt || new Date().toISOString();
                     } else {
                         const currentDate = new Date();
                         this.todos = [
                             {
-                                address: '',
+                                name: '',
                                 startDate: currentDate,
                                 tasks: ["Task 1", "Task 2", "Task 3"],
                                 completedTasks: [],
@@ -269,6 +278,7 @@
                     if (this.newTask.trim()) {
                         todo.tasks.push(this.newTask.trim());
                         this.newTask = '';
+                        this.updatedAt = new Date().toISOString();
                     }
                 },
                 editTask(todo, taskIndex, task) {
@@ -281,6 +291,7 @@
                         this.$set(todo.tasks, taskIndex, todo.taskEdits.trim());
                         todo.editableTask = null;
                         todo.taskEdits = '';
+                        this.updatedAt = new Date().toISOString();
                     }
                 },
                 cancelTaskEdit(todo) {
@@ -289,16 +300,18 @@
                 },
                 deleteTask(todo, taskIndex) {
                     todo.tasks.splice(taskIndex, 1);
+                    this.updatedAt = new Date().toISOString();
                 },
-                editHeader(index, address) {
+                editHeader(index, name) {
                     this.editableHeader = index;
-                    this.headerEdits = address;
+                    this.headerEdits = name;
                 },
                 saveHeaderEdit(index) {
                     if (this.headerEdits.trim()) {
-                        this.$set(this.todos[index], 'address', this.headerEdits.trim());
+                        this.$set(this.todos[index], 'name', this.headerEdits.trim());
                         this.editableHeader = null;
                         this.headerEdits = '';
+                        this.updatedAt = new Date().toISOString();
                     }
                 },
                 cancelHeaderEdit() {
@@ -312,10 +325,13 @@
                 },
                 savePreset() {
                     const data = {
+                        id: this.id,
                         todos: this.todos,
                         tourName: this.tourName,
                         tourNumber: this.tourNumber,
-                        tourModel: this.tourModel
+                        tourModel: this.tourModel,
+                        createdAt: this.createdAt,
+                        updatedAt: new Date().toISOString()
                     };
                     localStorage.setItem('todos', JSON.stringify(data));
                     alert('Preset saved successfully!');
@@ -327,11 +343,27 @@
                     this.fetchData(); // Reload initial data
                 },
                 exportPreset() {
+                    const totalTasks = this.todos.reduce((total, todo) => total + todo.tasks.length, 0);
+                    const totalCompletedTasks = this.todos.reduce((total, todo) => total + todo.completedTasks.length, 0);
                     const data = {
-                        todos: this.todos,
+                        id: this.id, // Use existing UUID
                         tourName: this.tourName,
                         tourNumber: this.tourNumber,
-                        tourModel: this.tourModel
+                        tourModel: this.tourModel,
+                        totalTodos: this.todos.length,
+                        totalTasks: totalTasks,
+                        totalCompletedTasks: totalCompletedTasks,
+                        createdAt: this.createdAt,
+                        updatedAt: new Date().toISOString(),
+                        todos: this.todos.map(todo => ({
+                            name: todo.name,
+                            startDate: todo.startDate,
+                            tasks: todo.tasks,
+                            completedTasks: todo.completedTasks,
+                            editableTask: todo.editableTask,
+                            taskEdits: todo.taskEdits,
+                            taskMenuVisible: todo.taskMenuVisible
+                        })),
                     };
                     const dataStr = JSON.stringify(data);
                     const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
@@ -354,10 +386,21 @@
                         const contents = e.target.result;
                         try {
                             const importedData = JSON.parse(contents);
-                            this.todos = importedData.todos;
+                            this.todos = importedData.todos.map(todo => ({
+                                name: todo.name,
+                                startDate: todo.startDate,
+                                tasks: todo.tasks,
+                                completedTasks: todo.completedTasks,
+                                editableTask: todo.editableTask,
+                                taskEdits: todo.taskEdits,
+                                taskMenuVisible: todo.taskMenuVisible
+                            }));
                             this.tourName = importedData.tourName || 'Tour Name';
                             this.tourNumber = importedData.tourNumber || 'Tour Number';
                             this.tourModel = importedData.tourModel || 'Day-Model';
+                            this.id = importedData.id || uuid.v4();
+                            this.createdAt = importedData.createdAt || new Date().toISOString();
+                            this.updatedAt = new Date().toISOString();
                             localStorage.setItem('todos', JSON.stringify(importedData));
                             alert('Preset imported successfully!');
                         } catch (error) {
