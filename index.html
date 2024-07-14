@@ -105,12 +105,27 @@
                                 <div v-else class="d-flex justify-content-between align-items-center w-100">
                                     <span @click="toggleTask(todo, task)" :class="{ 'completed': isTaskCompleted(todo, task) }">{{ task }}</span>
                                     <span>
-                                        <button class="btn btn-sm btn-warning" @click="editTask(todo, taskIndex, task)">
-                                            <i class="fas fa-edit"></i> <span>Edit</span>
-                                        </button>
-                                        <button class="btn btn-sm btn-danger" @click="deleteTask(todo, taskIndex)">
-                                            <i class="fas fa-trash"></i> <span>Delete</span>
-                                        </button>
+                                        <div class="btn-group" v-if="isSmallScreen">
+                                            <button type="button" class="btn btn-sm btn-secondary" @click="toggleTaskMenu(todo, taskIndex)">
+                                                <i class="fas fa-ellipsis-v"></i>
+                                            </button>
+                                            <div v-show="todo.taskMenuVisible === taskIndex" class="dropdown-menu dropdown-menu-right show">
+                                                <button class="dropdown-item" @click="editTask(todo, taskIndex, task)">
+                                                    <i class="fas fa-edit"></i> Edit
+                                                </button>
+                                                <button class="dropdown-item" @click="deleteTask(todo, taskIndex)">
+                                                    <i class="fas fa-trash"></i> Delete
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div v-else>
+                                            <button class="btn btn-sm btn-warning" @click="editTask(todo, taskIndex, task)">
+                                                <i class="fas fa-edit"></i> <span>Edit</span>
+                                            </button>
+                                            <button class="btn btn-sm btn-danger" @click="deleteTask(todo, taskIndex)">
+                                                <i class="fas fa-trash"></i> <span>Delete</span>
+                                            </button>
+                                        </div>
                                     </span>
                                 </div>
                             </li>
@@ -160,9 +175,18 @@
                 editableHeader: null,
                 headerEdits: '',
                 buttonGroupVisible: false,
-                allExpanded: false
+                allExpanded: false,
+                windowWidth: window.innerWidth // Add windowWidth to data
+            },
+            computed: {
+                isSmallScreen() {
+                    return this.windowWidth <= 800;
+                }
             },
             methods: {
+                updateWindowWidth() {
+                    this.windowWidth = window.innerWidth;
+                },
                 toggleButtonGroup() {
                     this.buttonGroupVisible = !this.buttonGroupVisible;
                 },
@@ -235,7 +259,8 @@
                                 tasks: ["Task 1", "Task 2", "Task 3"],
                                 completedTasks: [],
                                 editableTask: null,
-                                taskEdits: ''
+                                taskEdits: '',
+                                taskMenuVisible: null // Track visibility of task menu
                             },
                             // Add more default todos if needed
                         ];
@@ -253,6 +278,7 @@
                 editTask(todo, taskIndex, task) {
                     todo.editableTask = taskIndex;
                     todo.taskEdits = task;
+                    todo.taskMenuVisible = null; // Hide menu after editing
                 },
                 saveTaskEdit(todo, taskIndex) {
                     if (todo.taskEdits.trim()) {
@@ -363,10 +389,17 @@
                     this.tourName = 'Tour Name';
                     this.tourNumber = 'Tour Number';
                     this.tourModel = 'Day-Model';
+                },
+                toggleTaskMenu(todo, taskIndex) {
+                    this.$set(todo, 'taskMenuVisible', todo.taskMenuVisible === taskIndex ? null : taskIndex);
                 }
             },
             mounted() {
                 this.fetchData();
+                window.addEventListener('resize', this.updateWindowWidth);
+            },
+            beforeDestroy() {
+                window.removeEventListener('resize', this.updateWindowWidth);
             }
         });
     </script>
