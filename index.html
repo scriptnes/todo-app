@@ -49,10 +49,6 @@
                 <i class="fas fa-save"></i>
                 <span class="d-none d-sm-inline"> Save</span>
             </button>
-            <button class="btn btn-primary mr-2" @click="loadPreset">
-                <i class="fas fa-folder-open"></i>
-                <span class="d-none d-sm-inline"> Load</span>
-            </button>
             <button class="btn btn-danger mr-2" @click="deletePreset">
                 <i class="fas fa-trash"></i>
                 <span class="d-none d-sm-inline"> Delete</span>
@@ -323,20 +319,6 @@
                     };
                     localStorage.setItem('todos', JSON.stringify(data));
                     alert('Preset saved successfully!');
-                },
-                loadPreset() {
-                    const savedData = localStorage.getItem('todos');
-                    if (savedData) {
-                        const data = JSON.parse(savedData);
-                        this.todos = data.todos;
-                        this.tourName = data.tourName || 'Tour Name';
-                        this.tourNumber = data.tourNumber || 'Tour Number';
-                        this.tourModel = data.tourModel || 'Day-Model';
-                        alert('Preset loaded successfully!');
-                    } else {
-                        this.setDefaultTourDetails();
-                        alert('No saved preset found.');
-                    }
                 },
                 deletePreset() {
                     localStorage.removeItem('todos');
