@@ -10,6 +10,12 @@ The JSON structure follows a specific format to ensure compatibility with the To
 
 Here is the demo preset in JSON format:
 
+Usage
+To use this preset, simply copy the JSON structure and import it into your ToDo app. The tasks are designed to be concise and split into shorter strings to ensure they fit within the app's width constraints.
+
+License
+This project is licensed under the MIT License - see the LICENSE file for details.
+
 ```json
 {
   "id": "demo-cooking-preset",
@@ -84,3 +90,4 @@ Here is the demo preset in JSON format:
     }
   ]
 }
+
