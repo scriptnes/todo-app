@@ -358,8 +358,10 @@
           getDisabledDates() {
             const today = new Date();
             today.setHours(0, 0, 0, 0); 
+            const yesterday = new Date(today);
+            yesterday.setDate(today.getDate() - 1); 
             return {
-              to: today,
+              to: yesterday,
             };
           },
           savePreset() {
